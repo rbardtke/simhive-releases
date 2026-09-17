@@ -14,5 +14,5 @@ and every release here lists the SHA-256 of each file, a VirusTotal report and
 the key that signs updates — see "Check what you download" in the release notes.
 
 Running it in Docker instead of the app — on a server, a NAS, a spare Linux
-box — is in [docker/README.md](docker/README.md): two prebuilt images, one
-with the interface and lending, one that only lends cores.
+box — is at [rbardtke/simhive-docker](https://github.com/rbardtke/simhive-docker):
+one container, with or without the interface.
