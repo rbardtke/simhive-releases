@@ -12,3 +12,7 @@ Where things are: the pool and the guide are at https://simhive.sidian.app
 fetches come from [rbardtke/simc-builds](https://github.com/rbardtke/simc-builds),
 and every release here lists the SHA-256 of each file, a VirusTotal report and
 the key that signs updates — see "Check what you download" in the release notes.
+
+Running it in Docker instead of the app — on a server, a NAS, a spare Linux
+box — is in [docker/README.md](docker/README.md): two prebuilt images, one
+with the interface and lending, one that only lends cores.

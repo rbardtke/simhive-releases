@@ -1,0 +1,47 @@
+# A Simhive worker with no interface: this machine's cores lent to the pool,
+# nothing else. Prebuilt image, nothing to compile; simc arrives from the
+# release channel at the pool's pin (a 35 MB download on first connect) and
+# follows it from then on. A settings page on localhost:4801 (name, threads,
+# schedule, pause) — it has no login, so it stays on localhost.
+#
+#   1. put your member token in a file named .env next to this one:
+#        WORKER_TOKEN=xxxxxxxx      (get one at https://simhive.sidian.app/join)
+#        WORKER_NAME=my-server      (optional; how it appears in the pool)
+#   2. docker compose -f compose.worker.yml up -d
+#
+#   update:  docker compose -f compose.worker.yml pull && docker compose -f compose.worker.yml up -d
+services:
+  simhive-worker:
+    image: ghcr.io/rbardtke/simhive-worker:latest
+    container_name: simhive-worker
+    restart: unless-stopped
+    # Hardened: the engine's sanitiser keeps simc from being *asked* to touch
+    # files or the network; this keeps it from being *able* to. Writable
+    # places are the two volumes and /tmp.
+    read_only: true
+    tmpfs:
+      - /tmp:size=1g,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    pids_limit: 512
+    mem_limit: 6g
+    # keep some cores for yourself, e.g. cpuset: "0-5"; the thread slider on
+    # the settings page is the softer way
+    # cpuset: "0-5"
+    ports:
+      - "127.0.0.1:4801:4801"
+    volumes:
+      - simhive-worker-settings:/app/data/worker   # what you set on the settings page
+      - simhive-worker-simc:/opt/simc              # simc builds (the current and the previous)
+    environment:
+      WORKER_POOL: ${WORKER_POOL:-wss://simhive.sidian.app/worker}
+      WORKER_TOKEN: ${WORKER_TOKEN:?put WORKER_TOKEN=<your token> in .env}
+      WORKER_NAME: ${WORKER_NAME:-}
+      # empty = every core the container may run on, minus one
+      WORKER_THREADS: ${WORKER_THREADS:-}
+
+volumes:
+  simhive-worker-settings:
+  simhive-worker-simc:

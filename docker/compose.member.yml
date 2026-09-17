@@ -1,0 +1,44 @@
+# Simhive as a member with an interface: your own Localbots at
+# http://<this machine>:4747, sims sent to the pool, this machine's cores
+# lent to it. Prebuilt image, nothing to compile; simc arrives from the
+# release channel at the pool's pin (a 35 MB download at first start) and
+# the game tables (60 MB) fetch themselves.
+#
+#   1. put your member token in a file named .env next to this one:
+#        LOCALBOTS_POOL_TOKEN=xxxxxxxx      (get one at https://simhive.sidian.app/join)
+#   2. docker compose -f compose.member.yml up -d
+#   3. open http://localhost:4747
+#
+#   update:  docker compose -f compose.member.yml pull && docker compose -f compose.member.yml up -d
+#
+# The interface has no login: keep the port on your LAN (or bind it to
+# 127.0.0.1 below) — never expose it to the internet as is.
+services:
+  simhive:
+    image: ghcr.io/rbardtke/simhive:latest
+    container_name: simhive
+    restart: unless-stopped
+    ports:
+      - "4747:4747"            # LAN; "127.0.0.1:4747:4747" for this machine only
+    volumes:
+      - simhive-simc:/opt/simc                 # simc builds (the current and the previous)
+      - simhive-cache:/app/data/cache          # the game tables
+      - simhive-history:/app/data/history      # your saved sims
+      - simhive-config:/app/data/config        # this machine's pool settings (name, threads, schedule)
+    environment:
+      LOCALBOTS_POOL: ${LOCALBOTS_POOL:-https://simhive.sidian.app}
+      LOCALBOTS_POOL_TOKEN: ${LOCALBOTS_POOL_TOKEN:?put LOCALBOTS_POOL_TOKEN=<your token> in .env}
+      # how this machine appears in the pool (default: the container's host name)
+      LOCALBOTS_NODE_NAME: ${LOCALBOTS_NODE_NAME:-}
+      # optional Blizzard API credentials for live Armory lookups (see README)
+      BLIZZARD_CLIENT_ID: ${BLIZZARD_CLIENT_ID:-}
+      BLIZZARD_CLIENT_SECRET: ${BLIZZARD_CLIENT_SECRET:-}
+    # keep some cores for yourself while it sims, e.g. cpuset: "0-5"; the
+    # thread slider in Settings → Pool is the softer way
+    # cpuset: "0-5"
+
+volumes:
+  simhive-simc:
+  simhive-cache:
+  simhive-history:
+  simhive-config:
