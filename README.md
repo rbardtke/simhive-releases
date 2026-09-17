@@ -1,3 +1,5 @@
+<p align="center"><img src="brand/simhive-lockup-dark-1200.png" alt="SimHive" width="420"></p>
+
 # Simhive releases
 
 Installers for [Simhive](https://github.com/rbardtke/simhive) — your sims on
